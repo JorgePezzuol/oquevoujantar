@@ -35,6 +35,39 @@ class RestaurantList {
        restaurants: restaurants,
     );
   }
-
 }
+
+
+
+class Food {
+
+  final String id;
+  final String code;
+  final String description;
+  final String details;
+  final double unitPrice;
+  final String availability;
+  final String logoUrl;
+  
+  Food({this.id, this.code, this.description, this.details, this.unitPrice, this.availability, this.logoUrl});
+
+  String getThumb() {
+
+    return 'https://static-images.ifood.com.br/image/upload/f_auto,t_high/pratos/${this.logoUrl}';
+  }
+
+  factory Food.fromJson(Map<String, dynamic> json) {
+
+    return Food(
+      id: json['id'] as String,
+      code: json['code'] as String,
+      description: json['description'] as String,
+      details: json['details'] as String,
+      unitPrice: json['unitPrice'] as double,
+      availability: json['availability'] as String
+    );
+  }
+  
+}
+
 

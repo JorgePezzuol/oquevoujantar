@@ -3,6 +3,7 @@ import 'package:oquevoujantar/model/Restaurant.dart';
 import 'package:oquevoujantar/service/Services.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -12,38 +13,68 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  Future<RestaurantList> futureRestaurants;
+  Future<List<Food>> futureFood;
+  String _description = "";
+  String _details = "";
+  double _unitPrice = 0.0;
 
-  final Color _mainColor = Color(0xffFC5CF0);
-  final Color _secondColor = Color(0xffFE8852);
+  final Color _mainColor = Color(0xffff3300);
+  final Color _secondColor = Color(0xffff5050);
 
   @override
   void initState() {
     super.initState();
-    futureRestaurants = Services.fetchRestaurants();
+    futureFood = Services.fetchFood();
   }
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: FutureBuilder<RestaurantList>(
-        future: futureRestaurants,
+      body: FutureBuilder<List<Food>>(
+        future: futureFood,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return snapshot.data.restaurants.length > 0 
+            return snapshot.data.length > 0 
             ? Stack(
               children: <Widget>[
                 _header(),
+                AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  actions: <Widget>[  
+                    Row(children: <Widget>[
+                        Text("Rua Desembargador Francisco Ferreira"),
+                        IconButton(
+                          icon: Icon(Icons.location_on, size: 35),
+                          onPressed: (){},
+                        ),
+                      ]
+                    )             
+                  ]
+                ),
                 Container(
-                    margin: EdgeInsets.only(top: 80),
+                    margin: EdgeInsets.only(left: 20, right: 20, top: 80),
                     child: Column(
                       children: <Widget>[
-                        Text("Um texto qualqer", style: TextStyle(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic)),
-                        SizedBox(height: 20.0),
+                        SizedBox(width: 250, child: AutoSizeText(this._description, maxLines: 1, style: TextStyle(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic))),
+                        SizedBox(height: 25.0),
+                        Container(
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                            decoration: BoxDecoration(
+                              color: Colors.yellow,
+                              borderRadius: BorderRadius.circular(20.0)
+                            ),
+                            child: Text("Nome do restaurante"),
+                          )
+                        ),
                         _swiper(snapshot),
-                        _preFooter(),
-                        _footer()
+                        _content(),
+                        SizedBox(height: 10),
+                        _footer(),
+                        
                       ]
                     ),
                   ),
@@ -66,46 +97,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _preFooter() {
+  Widget _content() {
     return Expanded(
       child: Column(
         children: <Widget>[
           SizedBox(height: 10.0),
-          Text("Sasha - 22", style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16.0
-          ),),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.location_on, size: 16.0, color: Colors.grey,),
-              Text("San Diego, California, USA", style: TextStyle(color: Colors.grey.shade600),)
-            ],
+          Container(
+            width: 250,
+          
+            child: AutoSizeText(this._details, maxLines: 4, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0)),
           ),
-          SizedBox(height: 5.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              IconButton(
-                color: Colors.grey,
-                icon: Icon(FontAwesomeIcons.instagram),
-                onPressed: (){},
-              ),
-              IconButton(
-                color: Colors.grey,
-                icon: Icon(FontAwesomeIcons.facebookF),
-                onPressed: (){},
-              ),
-              IconButton(
-                color: Colors.grey.shade600,
-                icon: Icon(FontAwesomeIcons.twitter),
-                onPressed: (){},
-              ),
-            ],
-          ),
-
+          Spacer(),
+          Text('R\$${this._unitPrice.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
         ],
       ),
     );
@@ -130,13 +133,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: <Widget>[
                   IconButton(
                     color: Colors.white,
+                    icon: Icon(FontAwesomeIcons.undo),
+                    onPressed: (){},
+                  ),
+                  IconButton(
+                    color: Colors.white,
                     icon: Icon(FontAwesomeIcons.slidersH),
                     onPressed: (){},
                   ),
                   Spacer(),
                   IconButton(
                     color: Colors.white,
-                    icon: Icon(Icons.location_on),
+                    icon: Icon(FontAwesomeIcons.bacon),
+                    onPressed: (){},
+                  ),
+                  IconButton(
+                    color: Colors.white,
+                    icon: Icon(Icons.share),
                     onPressed: (){},
                   ),
                 ],
@@ -144,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Center(
               child: FloatingActionButton(
-                child: Icon(Icons.favorite, color: Colors.pink,),
+                child: Icon(Icons.favorite, color: Colors.red),
                 backgroundColor: Colors.white,
                 onPressed: (){},
               ),
@@ -169,28 +182,29 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _swiper(AsyncSnapshot<RestaurantList> snapshot) {
+  Widget _swiper(AsyncSnapshot<List<Food>> snapshot) {
     return Swiper(
       itemBuilder: (BuildContext context, int index) {
 
         return Dismissible(
           direction: DismissDirection.up,
-          key: Key(snapshot.data.restaurants[index].id),
+          key: Key(snapshot.data[index].id),
           onDismissed: (direction) {
             setState(() {
-              snapshot.data.restaurants.removeAt(index);
+              snapshot.data.removeAt(index);
             });
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Image.network(snapshot.data.restaurants[index].fileName,fit: BoxFit.fill)
+            child: Image.network(snapshot.data[index].logoUrl,fit: BoxFit.fill)
+            //child: Text(snapshot.data[index].description)
           )
         );
       },
       curve: Curves.elasticOut,
       itemWidth: 300,
-      itemHeight: 400,
-      itemCount: snapshot.data.restaurants.length,
+      itemHeight: 300,
+      itemCount: snapshot.data.length,
       layout: SwiperLayout.CUSTOM,
       customLayoutOption: CustomLayoutOption(
           startIndex: -1,
@@ -204,11 +218,19 @@ class _HomeScreenState extends State<HomeScreen> {
         Offset(0.0, 0.0),
         Offset(370.0, -40.0)
       ]),
+      onTap: (int index) {
+        print(index);
+      },
       pagination: null,
       control: null,
       onIndexChanged: (int index) {
-        print(index);
+        setState(() {
+          this._description = snapshot.data[index].description;
+          this._details = snapshot.data[index].details;
+          this._unitPrice = snapshot.data[index].unitPrice;
+        });
       },
+
     );
   }
   
