@@ -79,10 +79,8 @@ class Services {
   static List shuffle(List items) {
     var random = new Random();
 
-    // Go through all elements.
     for (var i = items.length - 1; i > 0; i--) {
 
-      // Pick a pseudorandom number according to the list length
       var n = random.nextInt(i + 1);
 
       var temp = items[i];
@@ -95,8 +93,7 @@ class Services {
 
   static Future<List<Food>> fetchFood() async {
 
-    Position position = await Geolocator()
-        .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     if (position == null) {
       throw Exception("Failed to get geoposition");

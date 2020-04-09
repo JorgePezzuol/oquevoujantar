@@ -18,10 +18,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<Food>> futureFood;
   
+  // placeholder for the first index in the swiper
   Food food = new Food(id: "Loading", code: "Loading", description: "Loading", details: "Loading", unitPrice: 0.0, availability: "Loading", logoUrl: "https://tryportugal.pt/wp-content/themes/adventure-tours/assets/images/placeholder.png", restaurant: new Restaurant(id: "Loading", name: "Loading", detailUrl: "Loading", fileName: "", slug: "Loading"));
   
   SwiperController _swipeController = SwiperController();
-  //var detailPage = "a";
 
   @override
   void initState() {
@@ -67,12 +67,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(children: <Widget>[
                         Text("Distância aprox: ${this.food.restaurant.distance.toString()} km", style: GoogleFonts.oswald(fontWeight: FontWeight.bold)),
                         IconButton(
-                          icon: Icon(FontAwesomeIcons.bacon),
-                            onPressed: (){
-                            _swipeController.startAutoplay();
-                            Future.delayed(Duration(milliseconds: 10000), () {
-                              _swipeController.stopAutoplay();
-                            });
+                          color: Colors.white,
+                          icon: Icon(FontAwesomeIcons.mapMarkerAlt),
+                          onPressed: (){
                           },
                         ),
                       ]
@@ -83,7 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     margin: EdgeInsets.only(top: 70),
                     child: Column(
                       children: <Widget>[
-                        SizedBox(width: 350, child: AutoSizeText(this.food.description, maxLines: 1, style: GoogleFonts.oswald(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold))),
+                        
+                        Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          child: AutoSizeText(this.food.description, maxLines: 1, style: GoogleFonts.oswald(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold)),
+                        ),
+                        
                         SizedBox(height: 10.0),
                         Container(
                           alignment: Alignment.topCenter,
@@ -117,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           else if(snapshot.hasError) {
             return Center(
-              child: Text("Erro ao tentar carregar", style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18))
+              child: Text(snapshot.error.toString(), style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18))
             );
           } 
           else {
@@ -136,17 +138,15 @@ class _HomeScreenState extends State<HomeScreen> {
         children: <Widget>[
           Spacer(),
           Expanded(
-            child: SingleChildScrollView(
               child: Container(
                 width: 250,
-                child: Text(this.food.details, style: GoogleFonts.oswald(fontSize: 20.0, fontStyle: FontStyle.normal)),
+                child: AutoSizeText(this.food.details, style: GoogleFonts.oswald(fontSize: 20.0, fontStyle: FontStyle.normal)),
               )
-            ),
           ),
-          Spacer(),
+      
           //SizedBox(height: 10),
           Expanded(
-            child: Text('R\$ ${this.food.unitPrice.toStringAsFixed(2)}', style: GoogleFonts.oswald(fontSize: 25, fontWeight: FontWeight.bold))
+            child: AutoSizeText('R\$ ${this.food.unitPrice.toStringAsFixed(2)}', style: GoogleFonts.oswald(fontSize: 22, fontWeight: FontWeight.bold))
           )
           
         ],
@@ -187,9 +187,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Spacer(),
                   IconButton(
-                    color: Colors.white,
-                    icon: Icon(FontAwesomeIcons.mapMarkerAlt),
-                    onPressed: (){
+                    icon: Icon(FontAwesomeIcons.bacon, color: Colors.white),
+                      onPressed: (){
+                      _swipeController.startAutoplay();
+                      Future.delayed(Duration(milliseconds: 10000), () {
+                        _swipeController.stopAutoplay();
+                      });
                     },
                   ),
                   IconButton(
@@ -279,11 +282,6 @@ class _HomeScreenState extends State<HomeScreen> {
       control: null,
       onIndexChanged: (int index) {
         setState(() {
-          // this._description = snapshot.data[index].description;
-          // this._details = snapshot.data[index].details;
-          // this._unitPrice = snapshot.data[index].unitPrice;
-          // this._restaurantName = snapshot.data[index].restaurant.name;
-          // this.detailPage = snapshot.data[index].getDetailPage();  
 
           this.food = snapshot.data[index];
           if(this.food.details == "") {
