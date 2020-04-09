@@ -4,6 +4,9 @@ import 'package:oquevoujantar/service/Services.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share/share.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -14,17 +17,34 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<Food>> futureFood;
-  String _description = "";
-  String _details = "";
-  double _unitPrice = 0.0;
-
-  final Color _mainColor = Color(0xffff3300);
-  final Color _secondColor = Color(0xffff5050);
+  
+  Food food = new Food(id: "Loading", code: "Loading", description: "Loading", details: "Loading", unitPrice: 0.0, availability: "Loading", logoUrl: "https://tryportugal.pt/wp-content/themes/adventure-tours/assets/images/placeholder.png", restaurant: new Restaurant(id: "Loading", name: "Loading", detailUrl: "Loading", fileName: "", slug: "Loading"));
+  
+  SwiperController _swipeController = SwiperController();
+  //var detailPage = "a";
 
   @override
   void initState() {
     super.initState();
-    futureFood = Services.fetchFood();
+    futureFood = Services.fetchFood().whenComplete(() => {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _swipeController.next();
+      })
+    });
+  }
+
+
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: true,
+        enableJavaScript: true
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -33,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: FutureBuilder<List<Food>>(
         future: futureFood,
+
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return snapshot.data.length > 0 
@@ -44,47 +65,59 @@ class _HomeScreenState extends State<HomeScreen> {
                   elevation: 0,
                   actions: <Widget>[  
                     Row(children: <Widget>[
-                        Text("Rua Desembargador Francisco Ferreira"),
+                        Text("Distância aprox: ${this.food.restaurant.distance.toString()} km", style: GoogleFonts.oswald(fontWeight: FontWeight.bold)),
                         IconButton(
-                          icon: Icon(Icons.location_on, size: 35),
-                          onPressed: (){},
+                          icon: Icon(FontAwesomeIcons.bacon),
+                            onPressed: (){
+                            _swipeController.startAutoplay();
+                            Future.delayed(Duration(milliseconds: 10000), () {
+                              _swipeController.stopAutoplay();
+                            });
+                          },
                         ),
                       ]
                     )             
                   ]
                 ),
                 Container(
-                    margin: EdgeInsets.only(left: 20, right: 20, top: 80),
+                    margin: EdgeInsets.only(top: 70),
                     child: Column(
                       children: <Widget>[
-                        SizedBox(width: 250, child: AutoSizeText(this._description, maxLines: 1, style: TextStyle(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic))),
-                        SizedBox(height: 25.0),
+                        SizedBox(width: 350, child: AutoSizeText(this.food.description, maxLines: 1, style: GoogleFonts.oswald(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold))),
+                        SizedBox(height: 10.0),
                         Container(
                           alignment: Alignment.topCenter,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
                             decoration: BoxDecoration(
-                              color: Colors.yellow,
+                              color: Colors.yellowAccent,
                               borderRadius: BorderRadius.circular(20.0)
                             ),
-                            child: Text("Nome do restaurante"),
+                            child: AutoSizeText(this.food.restaurant.name, maxLines: 1, style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18)),
                           )
                         ),
-                        _swiper(snapshot),
-                        _content(),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
+                        Expanded(
+                          flex: 2,
+                          child: _swiper(snapshot),
+                        ),
+                        //Spacer
+                        Expanded(
+                          flex: 1,
+                          child: _content(), 
+                        ),
+                        SizedBox(height: 5),
                         _footer(),
-                        
                       ]
                     ),
                   ),
               ]
             ) 
-            : Center(child: Text("Sem resultados"));
+            : Center(child: Text("Sem resultados", style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18)));
           }
           else if(snapshot.hasError) {
             return Center(
-              child: Text("error")
+              child: Text("Erro ao tentar carregar", style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18))
             );
           } 
           else {
@@ -98,17 +131,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _content() {
-    return Expanded(
+    return Container(
       child: Column(
         children: <Widget>[
-          SizedBox(height: 10.0),
-          Container(
-            width: 250,
-          
-            child: AutoSizeText(this._details, maxLines: 4, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0)),
+          Spacer(),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Container(
+                width: 250,
+                child: Text(this.food.details, style: GoogleFonts.oswald(fontSize: 20.0, fontStyle: FontStyle.normal)),
+              )
+            ),
           ),
           Spacer(),
-          Text('R\$${this._unitPrice.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+          //SizedBox(height: 10),
+          Expanded(
+            child: Text('R\$ ${this.food.unitPrice.toStringAsFixed(2)}', style: GoogleFonts.oswald(fontSize: 25, fontWeight: FontWeight.bold))
+          )
+          
         ],
       ),
     );
@@ -125,7 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
               margin: const EdgeInsets.only(top: 30 ,left: 20.0, right: 20.0,bottom: 20.0),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_mainColor, _secondColor],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.orangeAccent, Colors.red],
                 ),
                 borderRadius: BorderRadius.circular(30.0)
               ),
@@ -134,7 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     color: Colors.white,
                     icon: Icon(FontAwesomeIcons.undo),
-                    onPressed: (){},
+                    onPressed: (){
+                      _swipeController.previous();
+                    },
                   ),
                   IconButton(
                     color: Colors.white,
@@ -144,13 +188,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   Spacer(),
                   IconButton(
                     color: Colors.white,
-                    icon: Icon(FontAwesomeIcons.bacon),
-                    onPressed: (){},
+                    icon: Icon(FontAwesomeIcons.mapMarkerAlt),
+                    onPressed: (){
+                    },
                   ),
                   IconButton(
                     color: Colors.white,
                     icon: Icon(Icons.share),
-                    onPressed: (){},
+                    onPressed: (){
+                      Share.share(this.food.getDetailPage());
+                    },
                   ),
                 ],
               ),
@@ -159,7 +206,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: FloatingActionButton(
                 child: Icon(Icons.favorite, color: Colors.red),
                 backgroundColor: Colors.white,
-                onPressed: (){},
+                onPressed: (){
+                  this._launchInBrowser(this.food.getDetailPage());
+                },
               ),
             ),
           ],
@@ -174,9 +223,9 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50.0), bottomRight: Radius.circular(50.0)),
         gradient: LinearGradient(
-          colors: [_mainColor, _secondColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight
+          colors: [Colors.orangeAccent, Colors.red],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft
         )
       ),
     );
@@ -191,19 +240,27 @@ class _HomeScreenState extends State<HomeScreen> {
           key: Key(snapshot.data[index].id),
           onDismissed: (direction) {
             setState(() {
+              this._launchInBrowser(this.food.getDetailPage());
               snapshot.data.removeAt(index);
+              _swipeController.next();
             });
           },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(snapshot.data[index].logoUrl,fit: BoxFit.fill)
-            //child: Text(snapshot.data[index].description)
+          child: Container(
+
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                    fit: BoxFit.contain,
+                    image: NetworkImage(snapshot.data[index].logoUrl)
+                  ),
+              borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              color: Colors.grey[200],
+            )
           )
         );
       },
-      curve: Curves.elasticOut,
+      curve: Curves.linear,
       itemWidth: 300,
-      itemHeight: 300,
+      itemHeight: 275,
       itemCount: snapshot.data.length,
       layout: SwiperLayout.CUSTOM,
       customLayoutOption: CustomLayoutOption(
@@ -218,19 +275,29 @@ class _HomeScreenState extends State<HomeScreen> {
         Offset(0.0, 0.0),
         Offset(370.0, -40.0)
       ]),
-      onTap: (int index) {
-        print(index);
-      },
       pagination: null,
       control: null,
       onIndexChanged: (int index) {
         setState(() {
-          this._description = snapshot.data[index].description;
-          this._details = snapshot.data[index].details;
-          this._unitPrice = snapshot.data[index].unitPrice;
+          // this._description = snapshot.data[index].description;
+          // this._details = snapshot.data[index].details;
+          // this._unitPrice = snapshot.data[index].unitPrice;
+          // this._restaurantName = snapshot.data[index].restaurant.name;
+          // this.detailPage = snapshot.data[index].getDetailPage();  
+
+          this.food = snapshot.data[index];
+          if(this.food.details == "") {
+            this.food.details = "Sem descrição";
+          }
         });
       },
-
+      autoplayDisableOnInteraction: true,
+      duration: 500,
+      controller: _swipeController,
+      autoplayDelay: 1000,
+      autoplay: false,
+      onTap: (int index) {     
+      },
     );
   }
   
