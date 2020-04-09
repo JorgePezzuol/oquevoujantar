@@ -76,17 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     )             
                   ]
                 ),
+                
                 Container(
-                    margin: EdgeInsets.only(top: 70),
+                    margin: EdgeInsets.only(top: 80),
                     child: Column(
                       children: <Widget>[
-                        
-                        Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20),
-                          child: AutoSizeText(this.food.description, maxLines: 1, style: GoogleFonts.oswald(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold)),
-                        ),
-                        
-                        SizedBox(height: 10.0),
+                      SizedBox(height: 10.0),
                         Container(
                           alignment: Alignment.topCenter,
                           child: Container(
@@ -98,12 +93,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: AutoSizeText(this.food.restaurant.name, maxLines: 1, style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18)),
                           )
                         ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          child: AutoSizeText(this.food.description, maxLines: 1, style: GoogleFonts.oswald(color: Colors.white, fontSize: 28, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold)),
+                        ),
                         SizedBox(height: 5),
                         Expanded(
                           flex: 2,
                           child: _swiper(snapshot),
                         ),
-                        //Spacer
+                        SizedBox(height: 15),
                         Expanded(
                           flex: 1,
                           child: _content(), 
@@ -136,16 +135,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       child: Column(
         children: <Widget>[
-          Spacer(),
-          Expanded(
-              child: Container(
-                width: 250,
-                child: AutoSizeText(this.food.details, style: GoogleFonts.oswald(fontSize: 20.0, fontStyle: FontStyle.normal)),
+          //Spacer(),
+          Flexible(
+            
+            child: Container(
+              padding: EdgeInsets.only(left: 20, right: 20),
+              width: 350,
+              height: 350,
+              child: RichText(
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    style: GoogleFonts.oswald(fontSize: 20.0, fontStyle: FontStyle.normal, color: Colors.black),
+                    text: this.food.details),
               )
+            ),
           ),
-      
+          Spacer(),
           //SizedBox(height: 10),
-          Expanded(
+          Flexible(
             child: AutoSizeText('R\$ ${this.food.unitPrice.toStringAsFixed(2)}', style: GoogleFonts.oswald(fontSize: 22, fontWeight: FontWeight.bold))
           )
           
@@ -199,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white,
                     icon: Icon(Icons.share),
                     onPressed: (){
-                      Share.share(this.food.getDetailPage());
+                      Share.share("https://www.ifood.com.br/delivery/${this.food.restaurant.slug}/${this.food.restaurant.id}?prato=${this.food.code}");
                     },
                   ),
                 ],
@@ -210,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Icon(Icons.favorite, color: Colors.red),
                 backgroundColor: Colors.white,
                 onPressed: (){
-                  this._launchInBrowser(this.food.getDetailPage());
+                  this._launchInBrowser("https://www.ifood.com.br/delivery/${this.food.restaurant.slug}/${this.food.restaurant.id}?prato=${this.food.code}");
                 },
               ),
             ),
@@ -222,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _header() {
 
     return Container(
-      height: 400,
+      height: 325,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50.0), bottomRight: Radius.circular(50.0)),
         gradient: LinearGradient(
@@ -243,7 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
           key: Key(snapshot.data[index].id),
           onDismissed: (direction) {
             setState(() {
-              this._launchInBrowser(this.food.getDetailPage());
+              
+              this._launchInBrowser("https://www.ifood.com.br/delivery/${this.food.restaurant.slug}/${this.food.restaurant.id}?prato=${this.food.code}");
               snapshot.data.removeAt(index);
               _swipeController.next();
             });

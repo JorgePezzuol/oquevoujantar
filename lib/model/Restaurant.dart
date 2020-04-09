@@ -62,11 +62,6 @@ class Food {
   
   Food({this.id, this.code, this.description, this.details, this.unitPrice, this.availability, this.logoUrl, this.restaurant});
 
-  String getDetailPage() {
-
-    return "https://www.ifood.com.br/delivery/${this.restaurant.slug}/${this.restaurant.id}?prato=${this.code}";
-  }
-
 }
 
 
