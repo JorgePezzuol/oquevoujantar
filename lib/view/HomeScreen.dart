@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:oquevoujantar/model/Restaurant.dart';
 import 'package:oquevoujantar/service/Services.dart';
@@ -9,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import 'Categories.dart';
+
 class HomeScreen extends StatefulWidget {
 
   @override
@@ -18,9 +22,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<Food>> futureFood;
+  bool _isPickingCategory = false;
   
   // placeholder for the first index in the swiper
-  Food food = new Food(id: "Loading", code: "Loading", description: "Loading", details: "Loading", unitPrice: 0.0, availability: "Loading", logoUrl: "https://tryportugal.pt/wp-content/themes/adventure-tours/assets/images/placeholder.png", restaurant: new Restaurant(id: "Loading", name: "Loading", detailUrl: "Loading", fileName: "", slug: "Loading"));
+  Food food = new Food(id: "Carregando..", code: "Carregando..", description: "Carregando..", details: "Carregando..", unitPrice: 0.0, availability: "Carregando..", logoUrl: "https://tryportugal.pt/wp-content/themes/adventure-tours/assets/images/placeholder.png", restaurant: new Restaurant(id: "Carregando..", name: "Carregando..", detailUrl: "Carregando..", fileName: "", slug: "Carregando.."));
   
   SwiperController _swipeController = SwiperController();
 
@@ -32,6 +37,23 @@ class _HomeScreenState extends State<HomeScreen> {
         _swipeController.next();
       })
     });
+  }
+
+
+  _navigateAndSelectCategory(BuildContext context) async {
+    
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Categories()),
+    );
+
+    print(result);
+
+    setState(() {
+      futureFood = Services.fetchFood(category: result).whenComplete(() {
+         _swipeController.next();
+      });
+    });    
   }
 
 
@@ -51,7 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
+    return this._isPickingCategory == true ? Center(child: CircularProgressIndicator())
+    : Scaffold (
       body: FutureBuilder<List<Food>>(
         future: futureFood,
 
@@ -106,7 +129,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(height: 15),
                         Expanded(
                           flex: 1,
-                          child: _content(), 
+                          child: InkWell(
+                            child: _content(),
+                            onTap: () {
+                              print("asdasd");
+                              showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Descrição"),
+                                  content: Text(this.food.details),
+                                  actions: <Widget>[
+                                    FlatButton(child: Text("OK"), onPressed: () {
+                                      Navigator.of(context).pop();
+                                    })
+                                  ],
+                                );
+                              });
+                            },
+                          ) 
                         ),
                         SizedBox(height: 5),
                         _footer(),
@@ -138,17 +179,17 @@ class _HomeScreenState extends State<HomeScreen> {
         children: <Widget>[
           //Spacer(),
           Flexible(
-            
             child: Container(
-              padding: EdgeInsets.only(left: 20, right: 20),
+              padding: EdgeInsets.only(left: 15, right: 15),
               width: 350,
               height: 350,
               child: RichText(
                 overflow: TextOverflow.ellipsis,
                 text: TextSpan(
                     style: GoogleFonts.oswald(fontSize: 20.0, fontStyle: FontStyle.normal, color: Colors.black),
-                    text: this.food.details),
-              )
+                    text: this.food.details,
+                ),
+              ),
             ),
           ),
           Spacer(),
@@ -191,7 +232,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     color: Colors.white,
                     icon: Icon(FontAwesomeIcons.slidersH),
-                    onPressed: (){},
+                    onPressed: (){
+                      setState(() {
+                        this._isPickingCategory = true;
+                      });
+
+                      // IMPROVE HERE!!
+                      this._navigateAndSelectCategory(context);
+
+                      Future.delayed(const Duration(milliseconds: 5000), () {
+                        setState(() {
+                          this._isPickingCategory = false;
+                        });
+                      });
+                    },
                   ),
                   Spacer(),
                   IconButton(
@@ -243,6 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _swiper(AsyncSnapshot<List<Food>> snapshot) {
+
     return Swiper(
       itemBuilder: (BuildContext context, int index) {
 
@@ -257,25 +312,10 @@ class _HomeScreenState extends State<HomeScreen> {
               _swipeController.next();
             });
           },
-          // child: Container(
-          //   decoration: BoxDecoration(
-          //     color: Colors.grey[200],
-          //   ),
-          //   child: FittedBox(
-          //     fit: BoxFit.contain,
-          //     child: ClipRRect(
-          //       borderRadius: BorderRadius.all(Radius.circular(15.0)),
-          //       child: CachedNetworkImage(
-          //         imageUrl: snapshot.data[index].logoUrl,
-          //         placeholder: (context, url) => new CircularProgressIndicator(),
-          //         errorWidget: (context, url, error) => new Icon(Icons.error),
-          //       ),
-          //     ),
-          //   )
-          // )
           child: CachedNetworkImage(
               imageUrl:  snapshot.data[index].logoUrl,
               imageBuilder: (context, imageProvider) => Container(
+                  margin: EdgeInsets.only(left: 10, right: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                       borderRadius: BorderRadius.all(Radius.circular(15.0)),
@@ -286,13 +326,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               ),
               placeholder: (context, url) => Container(child: FittedBox(fit: BoxFit.none, child: CircularProgressIndicator())),
-              errorWidget: (context, url, error) => new Icon(Icons.error),
+              errorWidget: (context, url, error) => Icon(Icons.error),
           )
           
         );
       },
       curve: Curves.linear,
-      itemWidth: 300,
+      itemWidth: 350,
       itemHeight: 275,
       itemCount: snapshot.data.length,
       layout: SwiperLayout.CUSTOM,
@@ -324,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
       controller: _swipeController,
       autoplayDelay: 1000,
       autoplay: false,
-      onTap: (int index) {     
+      onTap: (int index) {
       },
     );
   }
