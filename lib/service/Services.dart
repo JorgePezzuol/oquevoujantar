@@ -53,9 +53,9 @@ class Services {
               logoUrl = "https://static-images.ifood.com.br/image/upload/f_auto,t_high/pratos/13ebb9ba-01d3-4620-9e08-f26aa4c8d8a1/202002271026_CyBV_i.jpg";
             }
           
-            if(logoUrl == "https://static-images.ifood.com.br/image/upload/f_auto,t_high/pratos/") {
-              logoUrl = "https://tryportugal.pt/wp-content/themes/adventure-tours/assets/images/placeholder.png";
-            }
+            // if(logoUrl == "https://static-images.ifood.com.br/image/upload/f_auto,t_high/pratos/") {
+            //   logoUrl = "https://tryportugal.pt/wp-content/themes/adventure-tours/assets/images/placeholder.png";
+            // }
             /* */
 
             foodList.add(new Food(

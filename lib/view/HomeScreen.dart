@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -87,10 +88,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
                             decoration: BoxDecoration(
-                              color: Colors.yellowAccent,
+                              color: Colors.orangeAccent,
                               borderRadius: BorderRadius.circular(20.0)
                             ),
-                            child: AutoSizeText(this.food.restaurant.name, maxLines: 1, style: GoogleFonts.oswald(fontWeight: FontWeight.bold, fontSize: 18)),
+                            child: AutoSizeText(this.food.restaurant.name, maxLines: 1, style: GoogleFonts.oswald(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
                           )
                         ),
                         Padding(
@@ -256,17 +257,38 @@ class _HomeScreenState extends State<HomeScreen> {
               _swipeController.next();
             });
           },
-          child: Container(
-
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                    fit: BoxFit.contain,
-                    image: NetworkImage(snapshot.data[index].logoUrl)
+          // child: Container(
+          //   decoration: BoxDecoration(
+          //     color: Colors.grey[200],
+          //   ),
+          //   child: FittedBox(
+          //     fit: BoxFit.contain,
+          //     child: ClipRRect(
+          //       borderRadius: BorderRadius.all(Radius.circular(15.0)),
+          //       child: CachedNetworkImage(
+          //         imageUrl: snapshot.data[index].logoUrl,
+          //         placeholder: (context, url) => new CircularProgressIndicator(),
+          //         errorWidget: (context, url, error) => new Icon(Icons.error),
+          //       ),
+          //     ),
+          //   )
+          // )
+          child: CachedNetworkImage(
+              imageUrl:  snapshot.data[index].logoUrl,
+              imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                      image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.contain,
+                      ),
                   ),
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              color: Colors.grey[200],
-            )
+              ),
+              placeholder: (context, url) => Container(child: FittedBox(fit: BoxFit.none, child: CircularProgressIndicator())),
+              errorWidget: (context, url, error) => new Icon(Icons.error),
           )
+          
         );
       },
       curve: Curves.linear,
