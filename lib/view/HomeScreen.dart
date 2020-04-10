@@ -39,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
   _navigateAndSelectCategory(BuildContext context) async {
 
     setState(() {
@@ -52,16 +51,16 @@ class _HomeScreenState extends State<HomeScreen> {
     )
     .then((category) {
       setState(() {
-        futureFood = Services.fetchFood(category: category).whenComplete(() {
-          _swipeController.next();
+        futureFood = Services.fetchFood(category: category).whenComplete(() => {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            _swipeController.next();
+          })
         });
       }); 
       setState(() {
         this._isPickingCategory = false;
       });
     });
-
-   
   }
 
 
