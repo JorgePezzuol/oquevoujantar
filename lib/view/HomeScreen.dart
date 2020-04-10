@@ -41,19 +41,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   _navigateAndSelectCategory(BuildContext context) async {
-    
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Categories()),
-    );
-
-    print(result);
 
     setState(() {
-      futureFood = Services.fetchFood(category: result).whenComplete(() {
-         _swipeController.next();
+      this._isPickingCategory = true;
+    });
+    
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Categories()),
+    )
+    .then((category) {
+      setState(() {
+        futureFood = Services.fetchFood(category: category).whenComplete(() {
+        });
+      }); 
+      setState(() {
+        this._isPickingCategory = false;
       });
-    });    
+    });
+
+   
   }
 
 
@@ -233,18 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white,
                     icon: Icon(FontAwesomeIcons.slidersH),
                     onPressed: (){
-                      setState(() {
-                        this._isPickingCategory = true;
-                      });
-
-                      // IMPROVE HERE!!
                       this._navigateAndSelectCategory(context);
-
-                      Future.delayed(const Duration(milliseconds: 5000), () {
-                        setState(() {
-                          this._isPickingCategory = false;
-                        });
-                      });
                     },
                   ),
                   Spacer(),

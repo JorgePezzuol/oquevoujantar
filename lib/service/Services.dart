@@ -7,7 +7,7 @@ import 'dart:math';
 class Services {
 
   static final _apiUrl =
-      'https://marketplace.ifood.com.br/v1/merchants?page=0&channel=IFOOD&size=50&sort=&categories=&payment_types=&delivery_fee_from=0&delivery_fee_to=25&delivery_time_from=0&delivery_time_to=90';
+      'https://marketplace.ifood.com.br/v1/merchants?page=0&channel=IFOOD&size=100&sort=&payment_types=&delivery_fee_from=0&delivery_fee_to=25&delivery_time_from=0&delivery_time_to=90';
       
   static final _headers = {
     'access_key': '69f181d5-0046-4221-b7b2-deef62bd60d5',
@@ -100,9 +100,8 @@ class Services {
 
     List<Food> foodList;
     
-    final response = await http.get(
-        'https://marketplace.ifood.com.br/v1/merchants?latitude=-23.53827&longitude=-46.22185&zip_code=08790320&page=0&channel=IFOOD&size=100&sort=&categories=$category&payment_types=&delivery_fee_from=0&delivery_fee_to=25&delivery_time_from=0&delivery_time_to=90');
-    //final response = await http.get('$_apiUrl&latitude=${position.latitude.toString()}&longitude=${position.longitude.toString()}');
+    //final response = await http.get('https://marketplace.ifood.com.br/v1/merchants?latitude=-23.53827&longitude=-46.22185&zip_code=08790320&page=0&channel=IFOOD&size=100&sort=&categories=$category&payment_types=&delivery_fee_from=0&delivery_fee_to=25&delivery_time_from=0&delivery_time_to=90');
+    final response = await http.get('$_apiUrl&latitude=${position.latitude.toString()}&longitude=${position.longitude.toString()}&categories=$category');
 
     if (response.statusCode == 200) {
 
