@@ -1,16 +1,34 @@
-# oquevoujantar
+# Project Name
+> O que vou jantar?
 
-A new Flutter project.
+## Table of contents
+* [General info](#general-info)
+* [Screenshots](#screenshots)
+* [Technologies](#technologies)
+* [Setup](#setup)
+* [Features](#features)
+* [Status](#status)
+* [Inspiration](#inspiration)
+* [Contact](#contact)
 
-## Getting Started
+## General info
+Tinder-like app to pick your dinner if you are not sure to what to eat 
 
-This project is a starting point for a Flutter application.
+## Screenshots
+![Main Screen](./docs/demonstration.webm)
 
-A few resources to get you started if this is your first Flutter project:
+## Technologies
+* Flutter
+* Visual Code
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Setup
+Install flutter, clone the project and run
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+* This app consumes iFood API (Glovo from Brazil) and shows the nearest restaurants to the users so they can choose what to eat but in a Tinder way
+
+## Status
+Project is: under development
+
+## Contact
+Created by [@jorgepezzuol](https://www.linkedin.com/in/jorge-pezzuol/) - feel free to contact me!
