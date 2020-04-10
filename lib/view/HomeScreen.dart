@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     .then((category) {
       setState(() {
         futureFood = Services.fetchFood(category: category).whenComplete(() {
+          _swipeController.next();
         });
       }); 
       setState(() {
