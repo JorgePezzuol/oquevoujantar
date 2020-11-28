@@ -15,7 +15,7 @@
 Tinder-like app to pick your dinner if you are not sure to what to eat 
 
 ## Screenshots
-![Main Screen](./docs/demonstration.gif = 250x250)
+<img src="./docs/demonstration.gif" width="50%" height="40%">
 
 ## Technologies
 * Flutter
